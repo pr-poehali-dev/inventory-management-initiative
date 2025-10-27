@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
 
 interface MovementsProps {
@@ -27,6 +28,7 @@ interface MovementsProps {
 
 const Movements = ({ productData, warehouseData }: MovementsProps) => {
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
+  const [previewFile, setPreviewFile] = useState<{ file: File; url: string } | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -37,6 +39,18 @@ const Movements = ({ productData, warehouseData }: MovementsProps) => {
 
   const removeFile = (index: number) => {
     setAttachedFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const openPreview = (file: File) => {
+    const url = URL.createObjectURL(file);
+    setPreviewFile({ file, url });
+  };
+
+  const closePreview = () => {
+    if (previewFile) {
+      URL.revokeObjectURL(previewFile.url);
+      setPreviewFile(null);
+    }
   };
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -151,14 +165,17 @@ const Movements = ({ productData, warehouseData }: MovementsProps) => {
                 {attachedFiles.length > 0 && (
                   <div className="space-y-2">
                     {attachedFiles.map((file, index) => (
-                      <div key={index} className="flex items-center justify-between p-2 border rounded-lg bg-muted/50">
-                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                      <div key={index} className="flex items-center justify-between p-2 border rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                        <button
+                          onClick={() => openPreview(file)}
+                          className="flex items-center gap-2 flex-1 min-w-0 text-left"
+                        >
                           <Icon name={file.type.includes('pdf') ? 'FileText' : 'Image'} className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                           <span className="text-sm truncate">{file.name}</span>
                           <span className="text-xs text-muted-foreground flex-shrink-0">
                             {(file.size / 1024).toFixed(1)} КБ
                           </span>
-                        </div>
+                        </button>
                         <Button
                           size="sm"
                           variant="ghost"
@@ -281,6 +298,36 @@ const Movements = ({ productData, warehouseData }: MovementsProps) => {
           </div>
         </CardContent>
       </Card>
+
+      <Dialog open={!!previewFile} onOpenChange={(open) => !open && closePreview()}>
+        <DialogContent className="max-w-4xl h-[90vh] p-0">
+          <DialogHeader className="p-6 pb-0">
+            <DialogTitle className="flex items-center gap-2">
+              <Icon name={previewFile?.file.type.includes('pdf') ? 'FileText' : 'Image'} className="h-5 w-5" />
+              {previewFile?.file.name}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="flex-1 overflow-auto p-6 pt-4">
+            {previewFile && (
+              <div className="flex items-center justify-center h-full">
+                {previewFile.file.type.includes('pdf') ? (
+                  <iframe
+                    src={previewFile.url}
+                    className="w-full h-full border-0 rounded-lg"
+                    title={previewFile.file.name}
+                  />
+                ) : (
+                  <img
+                    src={previewFile.url}
+                    alt={previewFile.file.name}
+                    className="max-w-full max-h-full object-contain rounded-lg"
+                  />
+                )}
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
