@@ -279,6 +279,45 @@ const Index = () => {
             <Input id="quantity" type="number" placeholder="Введите количество" min="1" />
           </div>
 
+          <div className="border-t pt-4 space-y-4">
+            <div className="flex items-center gap-2">
+              <Icon name="FileText" className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-medium">Документ-основание</span>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="doc-type">Тип документа</Label>
+              <Select>
+                <SelectTrigger id="doc-type">
+                  <SelectValue placeholder="Выберите тип" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="order">Заказ на перемещение</SelectItem>
+                  <SelectItem value="act">Акт перемещения</SelectItem>
+                  <SelectItem value="invoice">Накладная</SelectItem>
+                  <SelectItem value="request">Служебная записка</SelectItem>
+                  <SelectItem value="other">Другое</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-2">
+                <Label htmlFor="doc-number">Номер документа</Label>
+                <Input id="doc-number" placeholder="№" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="doc-date">Дата</Label>
+                <Input id="doc-date" type="date" />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="responsible">Ответственный</Label>
+              <Input id="responsible" placeholder="ФИО ответственного лица" />
+            </div>
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="notes">Примечание</Label>
             <Input id="notes" placeholder="Комментарий (необязательно)" />
