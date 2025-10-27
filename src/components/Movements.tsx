@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,6 +26,18 @@ interface MovementsProps {
 }
 
 const Movements = ({ productData, warehouseData }: MovementsProps) => {
+  const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const newFiles = Array.from(e.target.files);
+      setAttachedFiles(prev => [...prev, ...newFiles]);
+    }
+  };
+
+  const removeFile = (index: number) => {
+    setAttachedFiles(prev => prev.filter((_, i) => i !== index));
+  };
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <Card className="lg:col-span-1">
@@ -122,6 +135,43 @@ const Movements = ({ productData, warehouseData }: MovementsProps) => {
             <div className="space-y-2">
               <Label htmlFor="responsible">Ответственный</Label>
               <Input id="responsible" placeholder="ФИО ответственного лица" />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="file-upload">Прикрепить скан-копии</Label>
+              <div className="space-y-2">
+                <Input
+                  id="file-upload"
+                  type="file"
+                  multiple
+                  accept="image/*,.pdf"
+                  onChange={handleFileChange}
+                  className="cursor-pointer"
+                />
+                {attachedFiles.length > 0 && (
+                  <div className="space-y-2">
+                    {attachedFiles.map((file, index) => (
+                      <div key={index} className="flex items-center justify-between p-2 border rounded-lg bg-muted/50">
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          <Icon name={file.type.includes('pdf') ? 'FileText' : 'Image'} className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                          <span className="text-sm truncate">{file.name}</span>
+                          <span className="text-xs text-muted-foreground flex-shrink-0">
+                            {(file.size / 1024).toFixed(1)} КБ
+                          </span>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => removeFile(index)}
+                          className="ml-2 flex-shrink-0"
+                        >
+                          <Icon name="X" className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
